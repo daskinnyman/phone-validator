@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"phone_validator/pkg/controllers"
+	"phone_validator/pkg/models"
 	"phone_validator/pkg/repositories"
 	"phone_validator/pkg/serivces"
 
@@ -25,7 +26,7 @@ func run() error {
 	// Step 1: Create db connection instance and return it or error
 	dsn := "root:root@tcp(127.0.0.1:3306)/phone_validator?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := setUpDbConnection(dsn)
-
+	db.AutoMigrate(&models.PhoneNumber{})
 	if err != nil {
 		return err
 	}

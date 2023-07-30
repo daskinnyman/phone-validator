@@ -1,13 +1,17 @@
 package repositories
 
-import "gorm.io/gorm"
+import (
+	"phone_validator/pkg/models"
+
+	"gorm.io/gorm"
+)
 
 // Step 1: define the struct for the repository
 type PhoneNumberRepository interface {
-	// ValidatePhoneNumber validates the phone number
-	ValidatePhoneNumber(phoneNumber string) (bool, error)
+	// CreatePhoneNumber creates the phone number
+	CreatePhoneNumber(phoneNumber models.PhoneNumber) (models.PhoneNumber, error)
 	// GetPhoneNumber gets the phone number
-	GetPhoneNumber(phoneNumber string) (bool, error)
+	GetPhoneNumber(phoneNumber string) (models.PhoneNumber, error)
 }
 
 type phoneNumberRepository struct {
@@ -22,10 +26,19 @@ func CreatePhoneNumberRepository(db *gorm.DB) PhoneNumberRepository {
 }
 
 // Step 3: implement the methods for the repository
-func (r *phoneNumberRepository) ValidatePhoneNumber(phoneNumber string) (bool, error) {
-	panic("implement me")
+func (r *phoneNumberRepository) CreatePhoneNumber(phoneNumber models.PhoneNumber) (models.PhoneNumber, error) {
+	err := r.db.Create(&phoneNumber).Error
+
+	if err != nil {
+		return phoneNumber, err
+	}
+
+	return phoneNumber, nil
 }
 
-func (r *phoneNumberRepository) GetPhoneNumber(phoneNumber string) (bool, error) {
-	panic("implement me")
+func (r *phoneNumberRepository) GetPhoneNumber(phoneNumber string) (models.PhoneNumber, error) {
+	var phoneNumberRes models.PhoneNumber
+	r.db.First(&phoneNumberRes, phoneNumber)
+
+	return phoneNumberRes, nil
 }

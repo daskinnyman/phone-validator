@@ -1,6 +1,7 @@
 package serivces
 
 import (
+	"phone_validator/pkg/models"
 	"phone_validator/pkg/repositories"
 	"phone_validator/pkg/serivces/dtos"
 
@@ -32,14 +33,38 @@ func (p *phoneValidatorService) ValidatePhoneNumber(req dtos.ValidatePhoneNumber
 		return false, nil
 	}
 
-	// 2. parse the phone number
-	phoneNumber, err := phonenumbers.Parse(phoneNumberToValidate, "TW")
-
-	isValid := phonenumbers.IsValidNumberForRegion(phoneNumber, "TW")
+	// 2. Check if phone number is existing in the database
+	phoneRecord, err := p.storage.GetPhoneNumber(phoneNumberToValidate)
 
 	if err != nil {
 		return false, err
 	}
 
-	return isValid, nil
+	// 3. Return true if phone number is existing in the database
+	if phoneRecord.PhoneNumber != "" {
+		return phoneRecord.Valid, nil
+	}
+
+	// 4. parse the phone number
+	phoneNumber, err := phonenumbers.Parse(phoneNumberToValidate, "TW")
+
+	if err != nil {
+		return false, err
+	}
+
+	isValid := phonenumbers.IsValidNumberForRegion(phoneNumber, "TW")
+
+	// 5. Save the phone number to the database
+	phoneNumberToSave := models.PhoneNumber{
+		PhoneNumber: phoneNumberToValidate,
+		Valid:       isValid,
+	}
+
+	res, err := p.storage.CreatePhoneNumber(phoneNumberToSave)
+
+	if err != nil {
+		return false, err
+	}
+
+	return res.Valid, nil
 }
