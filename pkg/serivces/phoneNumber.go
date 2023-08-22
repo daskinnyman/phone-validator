@@ -1,8 +1,8 @@
 package serivces
 
 import (
-	"phone_validator/pkg/models"
 	"phone_validator/pkg/repositories"
+	"phone_validator/pkg/repositories/entities"
 	"phone_validator/pkg/serivces/dtos"
 
 	"github.com/nyaruka/phonenumbers"
@@ -18,7 +18,7 @@ type phoneValidatorService struct {
 }
 
 // Step 2: create the constructor for the service
-func CreatePhoneValidatorService(repo repositories.PhoneNumberRepository) PhoneValidatorService {
+func NewPhoneValidatorService(repo repositories.PhoneNumberRepository) PhoneValidatorService {
 	return &phoneValidatorService{
 		storage: repo,
 	}
@@ -34,7 +34,7 @@ func (p *phoneValidatorService) ValidatePhoneNumber(req dtos.ValidatePhoneNumber
 	}
 
 	// 2. Check if phone number is existing in the database
-	phoneRecord, err := p.storage.GetPhoneNumber(phoneNumberToValidate)
+	phoneRecord, err := p.storage.GetPhoneNumberResult(phoneNumberToValidate)
 
 	if err != nil {
 		return false, err
@@ -55,12 +55,12 @@ func (p *phoneValidatorService) ValidatePhoneNumber(req dtos.ValidatePhoneNumber
 	isValid := phonenumbers.IsValidNumberForRegion(phoneNumber, "TW")
 
 	// 5. Save the phone number to the database
-	phoneNumberToSave := models.PhoneNumber{
+	phoneNumberToSave := entities.PhoneNumber{
 		PhoneNumber: phoneNumberToValidate,
 		Valid:       isValid,
 	}
 
-	res, err := p.storage.CreatePhoneNumber(phoneNumberToSave)
+	res, err := p.storage.CreatePhoneNumberResult(phoneNumberToSave)
 
 	if err != nil {
 		return false, err

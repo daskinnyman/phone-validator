@@ -1,4 +1,4 @@
-package models
+package db
 
 // Create gorm model for phone number and it's validation result
 type PhoneNumber struct {

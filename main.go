@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"phone_validator/pkg/controllers"
-	"phone_validator/pkg/models"
+	models "phone_validator/pkg/db"
 	"phone_validator/pkg/repositories"
 	"phone_validator/pkg/serivces"
 
@@ -31,10 +31,10 @@ func run() error {
 		return err
 	}
 
-	phoneRepo := repositories.CreatePhoneNumberRepository(db)
+	phoneRepo := repositories.NewPhoneNumberResultRepository(db)
 
 	// Inject repo into services
-	phoneValidatorService := serivces.CreatePhoneValidatorService(phoneRepo)
+	phoneValidatorService := serivces.NewPhoneValidatorService(phoneRepo)
 
 	// Init gin router
 	router := gin.Default()
